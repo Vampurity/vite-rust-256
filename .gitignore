@@ -1,0 +1,26 @@
+# WASM 构建输出
+/pkg/
+/target/
+
+# wasm-pack 缓存
+/.wasm-pack/
+
+# 特定于 WASM 的忽略项
+*.wasm
+*.d.ts
+
+# Cargo 相关
+Cargo.lock  # 如果是库项目
+
+# 开发环境
+/node_modules/  # 如果有前端部分
+/dist/
+/build/
+
+# 编辑器文件
+.vscode/
+.idea/
+
+# 环境变量
+.env
+.env.local
