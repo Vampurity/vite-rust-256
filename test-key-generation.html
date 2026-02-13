@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>随机密钥生成测试</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      .success {
+        color: green;
+      }
+      .error {
+        color: red;
+      }
+      button {
+        padding: 10px 20px;
+        margin: 5px;
+        border: none;
+        border-radius: 5px;
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔑 随机密钥生成测试</h1>
+    <div id="status">正在加载 WebAssembly 模块...</div>
+
+    <div class="test-section">
+      <h3>测试随机密钥生成</h3>
+      <button id="testBtn" disabled>生成测试密钥</button>
+      <div id="results"></div>
+    </div>
+
+    <script type="module">
+      import init, { generate_key } from './pkg/vue_rust_crypto.js'
+
+      let isLoaded = false
+      const statusDiv = document.getElementById('status')
+      const testBtn = document.getElementById('testBtn')
+      const resultsDiv = document.getElementById('results')
+
+      async function loadModule() {
+        try {
+          await init()
+          isLoaded = true
+          statusDiv.innerHTML = '<span class="success">✅ WebAssembly 模块加载成功！</span>'
+          testBtn.disabled = false
+          console.log('WebAssembly 模块加载成功')
+        } catch (error) {
+          statusDiv.innerHTML = `<span class="error">❌ 加载失败: ${error.message}</span>`
+          console.error('加载失败:', error)
+        }
+      }
+
+      function testKeyGeneration() {
+        if (!isLoaded) {
+          resultsDiv.innerHTML = '<span class="error">模块未加载</span>'
+          return
+        }
+
+        resultsDiv.innerHTML = '<p>正在生成测试密钥...</p>'
+
+        try {
+          let html = '<h4>生成结果:</h4>'
+
+          for (let i = 0; i < 10; i++) {
+            try {
+              const key = generate_key(16)
+              html += `<p>密钥 ${i + 1}: <code>${key}</code> (长度: ${key.length})</p>`
+            } catch (err) {
+              html += `<p class="error">密钥 ${i + 1} 生成失败: ${err.message}</p>`
+            }
+          }
+
+          resultsDiv.innerHTML = html
+        } catch (error) {
+          resultsDiv.innerHTML = `<span class="error">测试失败: ${error.message}</span>`
+          console.error('测试失败:', error)
+        }
+      }
+
+      // 绑定事件
+      testBtn.addEventListener('click', testKeyGeneration)
+
+      // 加载模块
+      loadModule()
+    </script>
+  </body>
+</html>

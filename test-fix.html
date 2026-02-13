@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>修复测试</title>
+  </head>
+  <body>
+    <h1>修复测试</h1>
+    <div id="output"></div>
+
+    <script type="module">
+      import init, { encrypt_string, decrypt_string, generate_key } from './pkg/vue_rust_crypto.js'
+
+      async function test() {
+        const output = document.getElementById('output')
+
+        try {
+          // 初始化 WebAssembly 模块
+          await init()
+          output.innerHTML += '<p>✅ WebAssembly 模块加载成功！</p>'
+
+          // 测试密钥生成 - 修复后的版本
+          output.innerHTML += '<h3>测试随机密钥生成：</h3>'
+          for (let i = 0; i < 5; i++) {
+            try {
+              const key = generate_key(16)
+              output.innerHTML += `<p>🔑 密钥 ${i + 1}: ${key} (长度: ${key.length})</p>`
+            } catch (err) {
+              output.innerHTML += `<p>❌ 密钥生成失败: ${err.message}</p>`
+            }
+          }
+
+          // 测试加密解密
+          output.innerHTML += '<h3>测试加密解密：</h3>'
+          const testKey = generate_key(8)
+          const originalText = 'Hello, 测试中文!'
+
+          output.innerHTML += `<p>🔑 测试密钥: ${testKey}</p>`
+          output.innerHTML += `<p>📝 原始文本: ${originalText}</p>`
+
+          const encrypted = encrypt_string(originalText, testKey)
+          output.innerHTML += `<p>🔒 加密结果: ${encrypted}</p>`
+
+          const decrypted = decrypt_string(encrypted, testKey)
+          output.innerHTML += `<p>🔓 解密结果: ${decrypted}</p>`
+
+          if (originalText === decrypted) {
+            output.innerHTML += '<p>✅ 加密解密测试成功！</p>'
+          } else {
+            output.innerHTML += '<p>❌ 加密解密测试失败！</p>'
+          }
+        } catch (error) {
+          output.innerHTML += `<p>❌ 错误: ${error.message}</p>`
+          console.error('测试失败:', error)
+        }
+      }
+
+      test()
+    </script>
+  </body>
+</html>
